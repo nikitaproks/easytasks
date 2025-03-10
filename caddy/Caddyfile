@@ -1,0 +1,10 @@
+${DOMAIN} {
+    # Proxy requests to the backend service at /api
+    reverse_proxy /api/* service:8000
+
+    # Redirect HTTP to HTTPS automatically
+    @httpOnly {
+        protocol http
+    }
+    redir @httpOnly https://{host}{uri}
+}

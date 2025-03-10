@@ -1,0 +1,54 @@
+services:
+    db:
+        image: postgres:17-alpine
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+        # volumes:
+        #     - postgres_data:/var/lib/postgresql/data/
+        networks:
+            - webnet
+    localstack:
+        image: localstack/localstack:4.2
+        environment:
+            SERVICES: s3
+            DEBUG: 1
+            AWS_DEFAULT_REGION: eu-central-1
+        ports:
+            - "4566:4566"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - ./localstack.sh:/etc/localstack/init/ready.d/init-aws.sh
+        networks:
+            webnet:
+                aliases:
+                    - localhost.localstack.cloud
+    service:
+        build:
+            context: ./service
+            dockerfile: Dockerfile.dev
+        command: fastapi dev --host 0.0.0.0 src/main.py
+        networks:
+            - webnet
+        depends_on:
+            - db
+            - localstack
+        volumes:
+            - ./service/src:/app/src
+    caddy:
+        build:
+            context: ./caddy
+            dockerfile: Dockerfile.dev
+        ports:
+            - "80:80"
+        depends_on:
+            - service
+        networks:
+            - webnet
+
+volumes:
+    postgres_data:
+
+networks:
+    webnet:
