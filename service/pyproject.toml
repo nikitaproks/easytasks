@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.115.11",
+    "mypy>=1.15.0",
+    "ruff>=0.9.10",
 ]
 
 [dependency-groups]
