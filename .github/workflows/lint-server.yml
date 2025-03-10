@@ -9,7 +9,7 @@ on:
 
 jobs:
     lint-typecheck:
-        name: python
+        name: Service Lint
         runs-on: ubuntu-latest
 
         defaults:
