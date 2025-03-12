@@ -2,14 +2,10 @@
 ### DoS and Resource Exhaustion
 - [ ] Implement rate limiting
 - [ ] Implement timeout for script execution `timeout 30s python script.py`
-- [ ] Set CPU & Memory limits using Docker's --memory, --cpu-quota
 
 ### Arbitrary Code Execution (RCE) & Sandbox Escapes
 - [ ] Restricted user for runner
-- [ ] Use gVisor or Firecracker for syscall filtering
-- [ ] Disable networking inside the container (--network=none)
-- [ ] Docker isolation (--network=none, --memory=256m, --cpu-quota=50000).
-- [ ] Seccomp syscall restrictions (disable execve, fork, etc.).
+- [ ] use Firecracker for microVM
 - [ ] Python module blocking (disable import os & subprocess).
 - [ ] AST code scanning (reject scripts before running).
 
@@ -21,9 +17,8 @@
 
 
 ### Command Injection & SSRF Risks
-- [ ] Run containers with --read-only mode
+- [ ] Use a read-only filesystem inside the Firecracker VM.
 - [ ] Block Local IP Ranges (SSRF Protection)
-- [ ] Intercept dangerous function calls using AST parsing or runtime analysis.
 
 ### Malicious Scheduling Attacks
 - [ ] Rate-limit job submissions per user

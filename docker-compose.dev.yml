@@ -5,6 +5,8 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: postgres
+        ports:
+            - "5432:5432"
         # volumes:
         #     - postgres_data:/var/lib/postgresql/data/
         networks:
@@ -28,7 +30,7 @@ services:
         build:
             context: ./service
             dockerfile: Dockerfile.dev
-        command: fastapi dev --host 0.0.0.0 src/main.py
+        command: fastapi dev --host 0.0.0.0 src/main.py --reload
         networks:
             - webnet
         depends_on:

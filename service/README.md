@@ -1,8 +1,8 @@
 Tasks:
-- [ ] Setup DB connection
-- [ ] Setup alembic
-- [ ] Setup FastAPI User
-- [ ] Setup Authentication
+- [x] Setup DB connection
+- [x] Setup alembic
+- [x] Setup FastAPI User
+- [x] Setup Authentication
 - [ ] Setup admin panel
 - [ ] Setup File Upload (Model, Schemas, CRUD)
 - [ ] Create Endpoint tests
