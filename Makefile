@@ -1,8 +1,8 @@
 lint:
 	cd service && \
-	uv run ruff format && \
-	uv run ruff check --fix && \
-	uv run mypy .
+	uv run ruff format ./src && \
+	uv run ruff check --fix ./src && \
+	uv run mypy ./src
 
 run:
 	docker compose -f docker-compose.dev.yml up --build
