@@ -1,4 +1,5 @@
 import contextlib
+from typing import cast
 
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -10,7 +11,7 @@ from starlette.responses import Response
 from src.db.generators import get_async_session, get_user_db
 from src.models.user import User
 from src.settings import settings
-from src.users.auth import auth_backend, get_user_manager
+from src.users.auth import get_jwt_strategy, get_user_manager
 
 get_async_session_context = contextlib.asynccontextmanager(get_async_session)
 get_user_db_context = contextlib.asynccontextmanager(get_user_db)
@@ -18,29 +19,27 @@ get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
 
 
 class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.email]
+    column_list = [str(User.id), User.email]
 
 
 class AdminAuthenticationBackend(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        username = form.get("username")
-        password = form.get("password")
+        username = cast(str, form["username"])
+        password = cast(str, form["password"])
 
         user: User
         async with get_async_session_context() as session:
             async with get_user_db_context(session) as user_db:
                 async with get_user_manager_context(user_db) as user_manager:
                     user = await user_manager.authenticate(
-                        OAuth2PasswordRequestForm(
-                            username=username, password=password
-                        )
+                        OAuth2PasswordRequestForm(username=username, password=password)
                     )
 
         if user is None or not user.is_active or not user.is_verified:
             return False
 
-        strategy = auth_backend.get_strategy()
+        strategy = get_jwt_strategy()
         token = await strategy.write_token(user)
 
         request.session.update({"token": token})
@@ -55,7 +54,7 @@ class AdminAuthenticationBackend(AuthenticationBackend):
         if not token:
             return False
 
-        strategy = auth_backend.get_strategy()
+        strategy = get_jwt_strategy()
         async with get_async_session_context() as session:
             async with get_user_db_context(session) as user_db:
                 async with get_user_manager_context(user_db) as user_manager:
