@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     SECRET: str
 
+    # Superuser
+    SUPERUSER_EMAIL: str
+    SUPERUSER_PASSWORD: str
+
+    # Database
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
     POSTGRES_USER: str = "postgres"
@@ -19,7 +24,9 @@ class Settings(BaseSettings):
 
     @model_validator(mode="before")
     @classmethod
-    def check_card_number_not_present(cls, data: dict[str, int | bool | str]) -> Any:
+    def check_card_number_not_present(
+        cls, data: dict[str, int | bool | str]
+    ) -> Any:
         user = data["POSTGRES_USER"]
         password = data["POSTGRES_PASSWORD"]
         host = data["POSTGRES_HOST"]
@@ -30,7 +37,7 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
         )
         data["ALEMBIC_DATABASE_URL"] = (
-            f"postgresql://{user}:{password}@{host}:{port}/{db}"
+            f"postgresql://{user}:{password}@localhost:{port}/{db}"
         )
 
         return data
