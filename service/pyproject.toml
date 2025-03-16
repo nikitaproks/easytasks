@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "aiosqlite>=0.21.0",
-    "awscli-local[ver1]>=0.22.0",
-]
+dev = ["aiosqlite>=0.21.0", "awscli-local[ver1]>=0.22.0"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

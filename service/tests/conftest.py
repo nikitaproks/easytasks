@@ -3,10 +3,10 @@ import os
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 
 import contextlib
-from typing import AsyncGenerator, Awaitable, Callable
+from typing import Any, AsyncGenerator, Awaitable, Callable
 
-import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
+import pytest
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from src.db.engine import Base, async_session_maker
 from src.models.user import User
@@ -17,7 +17,7 @@ get_user_db_context = contextlib.asynccontextmanager(get_user_db)
 get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def test_engine():
     from src.db.engine import engine
 
@@ -33,15 +33,17 @@ async def test_engine():
     engine.sync_engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="function")
-async def session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+@pytest.fixture(scope="function")
+async def session(
+    test_engine: AsyncEngine,
+) -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         await session.begin()
         yield session
         await session.rollback()
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def user_manager(
     session: AsyncSession,
 ) -> AsyncGenerator[UserManager, None]:
@@ -50,14 +52,14 @@ async def user_manager(
             yield user_manager
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def user_factory(
     user_manager: UserManager,
 ) -> AsyncGenerator[Callable[..., Awaitable[User]], None]:
     created_users: list[User] = []
 
-    async def create_user(**user_kwargs) -> User:
-        user = await user_manager.create(UserCreate(**user_kwargs))
+    async def create_user(**user_kwargs: dict[str, Any]) -> User:
+        user = await user_manager.create(UserCreate.model_validate(user_kwargs))
         created_users.append(user)
         return user
 
@@ -68,7 +70,7 @@ async def user_factory(
             await user_manager.delete(user)
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def admin_user(
     user_factory: Callable[..., Awaitable[User]],
 ) -> AsyncGenerator[User, None]:
@@ -81,7 +83,7 @@ async def admin_user(
     yield user
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def regular_user(
     user_factory: Callable[..., Awaitable[User]],
 ) -> AsyncGenerator[User, None]:
@@ -93,7 +95,7 @@ async def regular_user(
     yield user
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def inactive_user(
     user_factory: Callable[..., Awaitable[User]],
 ) -> AsyncGenerator[User, None]:
@@ -106,7 +108,7 @@ async def inactive_user(
     yield user
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def unverified_user(
     user_factory: Callable[..., Awaitable[User]],
 ) -> AsyncGenerator[User, None]:

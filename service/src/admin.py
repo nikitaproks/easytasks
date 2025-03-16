@@ -28,7 +28,7 @@ class AdminAuthenticationBackend(AuthenticationBackend):
         username = cast(str, form["username"])
         password = cast(str, form["password"])
 
-        user: User
+        user: User | None = None
         async with get_async_session_context() as session:
             async with get_user_db_context(session) as user_db:
                 async with get_user_manager_context(user_db) as user_manager:
