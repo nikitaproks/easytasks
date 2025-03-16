@@ -6,6 +6,6 @@ Tasks:
 - [X] Setup admin panel
 - [x] Create Admintests
 - [x] Setup lint test CI/CD pipeline
-- [ ] Make dev dockerfile
+- [x] Make dev dockerfile
 - [ ] Setup File Upload (Model, Schemas, CRUD)
 - [ ] Create Endpoint tests
