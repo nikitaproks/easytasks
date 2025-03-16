@@ -3,7 +3,7 @@ import contextlib
 from fastapi_users.exceptions import UserAlreadyExists
 
 from src.db.generators import get_async_session, get_user_db
-from src.settings import settings
+from src.settings import get_settings
 from src.users.auth import get_user_manager
 from src.users.schemas import UserCreate
 
@@ -32,5 +32,7 @@ async def create_user(email: str, password: str, is_superuser: bool = False):
 
 async def create_superuser():
     await create_user(
-        settings.SUPERUSER_EMAIL, settings.SUPERUSER_PASSWORD, is_superuser=True
+        get_settings().SUPERUSER_EMAIL,
+        get_settings().SUPERUSER_PASSWORD,
+        is_superuser=True,
     )

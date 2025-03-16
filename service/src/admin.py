@@ -10,7 +10,7 @@ from starlette.responses import Response
 
 from src.db.generators import get_async_session, get_user_db
 from src.models.user import User
-from src.settings import settings
+from src.settings import get_settings
 from src.users.auth import get_jwt_strategy, get_user_manager
 
 get_async_session_context = contextlib.asynccontextmanager(get_async_session)
@@ -72,4 +72,4 @@ class AdminAuthenticationBackend(AuthenticationBackend):
         return RedirectResponse(url="/admin/login")
 
 
-admin_authentication_backend = AdminAuthenticationBackend(settings.SECRET)
+admin_authentication_backend = AdminAuthenticationBackend(get_settings().SECRET)

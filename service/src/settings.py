@@ -1,4 +1,4 @@
-import os
+from functools import cache
 from typing import Any
 
 from pydantic import ConfigDict, model_validator
@@ -16,30 +16,32 @@ class Settings(BaseSettings):
     SUPERUSER_PASSWORD: str
 
     # Database
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: str = "5432"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "postgres"
+    POSTGRES_HOST: str | None = None
+    POSTGRES_PORT: str | None = None
+    POSTGRES_USER: str | None = None
+    POSTGRES_PASSWORD: str | None = None
+    POSTGRES_DB: str | None = None
 
     DATABASE_URL: str
 
     @model_validator(mode="before")
     @classmethod
     def check_card_number_not_present(cls, data: dict[str, int | bool | str]) -> Any:
-        user = data["POSTGRES_USER"]
-        password = data["POSTGRES_PASSWORD"]
-        host = data["POSTGRES_HOST"]
-        port = data["POSTGRES_PORT"]
-        db = data["POSTGRES_DB"]
-
-        if os.getenv("TEST", "false").lower() == "true":
-            data["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
+        database_url = data.get("DATABASE_URL")
+        if database_url:
+            return data
         else:
-            data["DATABASE_URL"] = (
+            user = data["POSTGRES_USER"]
+            password = data["POSTGRES_PASSWORD"]
+            host = data["POSTGRES_HOST"]
+            port = data["POSTGRES_PORT"]
+            db = data["POSTGRES_DB"]
+            data["DATABASE_URL"] = data.get("DATABASE_URL") or (
                 f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
             )
         return data
 
 
-settings = Settings()  # type: ignore
+@cache
+def get_settings():
+    return Settings()  # type: ignore
