@@ -1,10 +1,13 @@
+import os
 from typing import Any
 
-from pydantic import model_validator
+from pydantic import ConfigDict, model_validator
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(case_sensitive=True, env_file="../.env")
+
     DEBUG: bool = False
     SECRET: str
 
@@ -20,29 +23,25 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "postgres"
 
     DATABASE_URL: str
-    ALEMBIC_DATABASE_URL: str
 
     @model_validator(mode="before")
     @classmethod
-    def check_card_number_not_present(cls, data: dict[str, int | bool | str]) -> Any:
+    def check_card_number_not_present(
+        cls, data: dict[str, int | bool | str]
+    ) -> Any:
         user = data["POSTGRES_USER"]
         password = data["POSTGRES_PASSWORD"]
         host = data["POSTGRES_HOST"]
         port = data["POSTGRES_PORT"]
         db = data["POSTGRES_DB"]
 
-        data["DATABASE_URL"] = (
-            f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
-        )
-        data["ALEMBIC_DATABASE_URL"] = (
-            f"postgresql://{user}:{password}@localhost:{port}/{db}"
-        )
-
+        if os.getenv("TEST", "false").lower() == "true":
+            data["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
+        else:
+            data["DATABASE_URL"] = (
+                f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
+            )
         return data
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 
 settings = Settings()  # type: ignore
