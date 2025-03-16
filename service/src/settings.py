@@ -26,9 +26,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="before")
     @classmethod
-    def check_card_number_not_present(
-        cls, data: dict[str, int | bool | str]
-    ) -> Any:
+    def check_card_number_not_present(cls, data: dict[str, int | bool | str]) -> Any:
         database_url = data.get("DATABASE_URL")
         if database_url:
             return data
