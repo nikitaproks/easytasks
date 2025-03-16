@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(case_sensitive=True, env_file="../.env")
+    model_config = ConfigDict(case_sensitive=True, env_file="../.env")  # type: ignore
 
     DEBUG: bool = False
     SECRET: str
@@ -26,9 +26,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="before")
     @classmethod
-    def check_card_number_not_present(
-        cls, data: dict[str, int | bool | str]
-    ) -> Any:
+    def check_card_number_not_present(cls, data: dict[str, int | bool | str]) -> Any:
         user = data["POSTGRES_USER"]
         password = data["POSTGRES_PASSWORD"]
         host = data["POSTGRES_HOST"]
