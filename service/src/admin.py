@@ -33,9 +33,11 @@ class AdminAuthenticationBackend(AuthenticationBackend):
             async with get_user_db_context(session) as user_db:
                 async with get_user_manager_context(user_db) as user_manager:
                     user = await user_manager.authenticate(
-                        OAuth2PasswordRequestForm(username=username, password=password)
+                        OAuth2PasswordRequestForm(
+                            username=username, password=password
+                        )
                     )
-
+        print(user)
         if (
             user is None
             or not user.is_active
